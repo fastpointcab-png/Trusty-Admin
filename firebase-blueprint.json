@@ -1,0 +1,160 @@
+{
+  "entities": {
+    "Driver": {
+      "title": "Driver",
+      "description": "Registered cab driver profile with presence, vehicle specs, and GPS coordinates",
+      "type": "object",
+      "properties": {
+        "driver_id": { "type": "string", "description": "Unique driver ID" },
+        "driver_name": { "type": "string", "description": "Full name of the driver" },
+        "mobile_number": { "type": "string", "description": "Driver primary mobile phone" },
+        "vehicle_number": { "type": "string", "description": "Vehicle registration license plate" },
+        "vehicle_category": { "type": "string", "description": "Vehicle class (Mini, Sedan, SUV, SUV+, Innova)", "enum": ["Mini", "Sedan", "SUV", "SUV+", "Innova", "Auto", "Bike", "Luxury"] },
+        "status": { "type": "string", "description": "Account status", "enum": ["ACTIVE", "BLOCKED", "INACTIVE"] },
+        "is_online": { "type": "boolean", "description": "True if driver is active and ready for dispatch" },
+        "latitude": { "type": "number", "description": "Current GPS latitude" },
+        "longitude": { "type": "number", "description": "Current GPS longitude" },
+        "photo_url": { "type": "string", "description": "Driver portrait image URL" },
+        "last_seen": { "type": "number", "description": "Unix timestamp in ms of last location ping" },
+        "expiry_date": { "type": "string", "description": "Driver authorization expiry date YYYY-MM-DD" },
+        "photo_version": { "type": "number", "description": "Version counter for photo caching" },
+        "last_sync_time": { "type": "number", "description": "Unix timestamp in ms of last Firestore sync" },
+        "device_id": { "type": "string", "description": "Unique Android hardware ID bound to driver session" },
+        "fcm_token": { "type": "string", "description": "Firebase Cloud Messaging token for push notifications" }
+      },
+      "required": ["driver_id", "driver_name", "vehicle_number", "vehicle_category", "status"]
+    },
+    "Trip": {
+      "title": "Trip",
+      "description": "Taxi dispatch ride request, meter fare, and lifecycle tracking document",
+      "type": "object",
+      "properties": {
+        "trip_id": { "type": "string", "description": "Human readable Trip ID" },
+        "customer_name": { "type": "string", "description": "Customer name" },
+        "customer_phone": { "type": "string", "description": "Customer contact number" },
+        "pickup_location": { "type": "string", "description": "Textual pickup address" },
+        "drop_location": { "type": "string", "description": "Textual drop destination address" },
+        "pickup_lat": { "type": "number", "description": "Pickup latitude coordinate" },
+        "pickup_lng": { "type": "number", "description": "Pickup longitude coordinate" },
+        "drop_lat": { "type": "number", "description": "Drop destination latitude coordinate" },
+        "drop_lng": { "type": "number", "description": "Drop destination longitude coordinate" },
+        "status": { "type": "string", "description": "Current trip status", "enum": ["OPEN", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] },
+        "driver_id": { "type": "string", "description": "Assigned driver ID" },
+        "driver_name": { "type": "string", "description": "Assigned driver full name" },
+        "driver_phone": { "type": "string", "description": "Assigned driver contact number" },
+        "vehicle_number": { "type": "string", "description": "Vehicle license plate" },
+        "vehicle_category": { "type": "string", "description": "Required or assigned vehicle class" },
+        "estimated_fare": { "type": "number", "description": "Initial estimated fare amount in currency" },
+        "final_fare": { "type": "number", "description": "Final metered fare upon completion" },
+        "notes": { "type": "string", "description": "Special dispatch notes or customer instructions" },
+        "created_at": { "type": "number", "description": "Timestamp ms when trip was posted" },
+        "updated_at": { "type": "number", "description": "Timestamp ms of latest update" },
+        "accepted_at": { "type": "number", "description": "Timestamp ms when driver accepted" },
+        "started_at": { "type": "number", "description": "Timestamp ms when ride began with OTP" },
+        "completed_at": { "type": "number", "description": "Timestamp ms when ride finished" },
+        "trip_type": { "type": "string", "description": "Trip package mode", "enum": ["REGULAR", "PACKAGE"] },
+        "base_fare": { "type": "number", "description": "Base boarding fare" },
+        "kms_fare": { "type": "number", "description": "Fare rate per kilometer" },
+        "hour_fare": { "type": "number", "description": "Fare rate per hour for package rentals" },
+        "is_package": { "type": "boolean", "description": "True if hourly package ride" },
+        "dispatch_type": { "type": "string", "description": "Dispatch algorithm mode", "enum": ["BROADCAST", "RADIUS"] },
+        "radius_kms": { "type": "number", "description": "Driver search radius in km for radius dispatch" },
+        "otp": { "type": "string", "description": "4-digit ride start security OTP" }
+      },
+      "required": ["trip_id", "customer_name", "pickup_location", "drop_location", "status", "estimated_fare"]
+    },
+    "SystemSettings": {
+      "title": "SystemSettings",
+      "description": "Backend control document for admin online status and driver sync cutoff switch",
+      "type": "object",
+      "properties": {
+        "admin_online": { "type": "boolean", "description": "Master switch: true = active sync, false = cutoff" },
+        "sync_enabled": { "type": "boolean", "description": "True when driver real-time listeners are active" },
+        "status": { "type": "string", "description": "System state (ONLINE, OFFLINE, CUTOFF)", "enum": ["ONLINE", "OFFLINE", "CUTOFF"] },
+        "updated_at": { "type": "number", "description": "Timestamp of status change" },
+        "broadcast_notice": { "type": "string", "description": "Emergency announcement to drivers" },
+        "maintenance_mode": { "type": "boolean", "description": "Flag indicating scheduled maintenance" }
+      },
+      "required": ["admin_online", "sync_enabled", "status", "updated_at"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized console administrator, manager, or dispatch operator profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Admin unique identifier" },
+        "email": { "type": "string", "description": "Admin email address" },
+        "name": { "type": "string", "description": "Admin full name" },
+        "role": { "type": "string", "description": "Assigned administrative role", "enum": ["SUPER_ADMIN", "DISPATCH_MANAGER", "FLEET_SUPERVISOR", "OPERATOR"] },
+        "is_active": { "type": "boolean", "description": "Whether this admin account is currently active" },
+        "permissions": { "type": "object", "description": "Fine-grained capability flags" },
+        "created_at": { "type": "number", "description": "Unix timestamp of creation" }
+      },
+      "required": ["email", "name", "role", "is_active"]
+    },
+    "FareRateCard": {
+      "title": "FareRateCard",
+      "description": "Vehicle tier fare calculation parameters and tariffs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Rate card ID" },
+        "category": { "type": "string", "description": "Vehicle category identifier" },
+        "name": { "type": "string", "description": "Human friendly category display name" },
+        "base_fare": { "type": "number", "description": "Base boarding tariff in INR" },
+        "base_distance_km": { "type": "number", "description": "Included base distance in KM" },
+        "per_km_rate": { "type": "number", "description": "Rate per extra kilometer" },
+        "per_hour_rate": { "type": "number", "description": "Rate per package hour" },
+        "minimum_fare": { "type": "number", "description": "Minimum ride floor fare" },
+        "waiting_fare_per_min": { "type": "number", "description": "Waiting charge per minute" },
+        "night_surge_multiplier": { "type": "number", "description": "Night surge rate multiplier" },
+        "seats": { "type": "number", "description": "Passenger capacity" }
+      },
+      "required": ["category", "name", "base_fare", "per_km_rate"]
+    },
+    "TrackingSession": {
+      "title": "TrackingSession",
+      "description": "Optional single-trip customer live tracking token and session",
+      "type": "object",
+      "properties": {
+        "token": { "type": "string", "description": "Unique secure tracking token" },
+        "trip_id": { "type": "string", "description": "Trip identifier being tracked" },
+        "created_at": { "type": "number", "description": "Creation timestamp in ms" },
+        "is_active": { "type": "boolean", "description": "Whether tracking is currently enabled" },
+        "customer_name": { "type": "string", "description": "Customer name" },
+        "customer_phone": { "type": "string", "description": "Customer contact phone" },
+        "driver_id": { "type": "string", "description": "Currently assigned driver ID" }
+      },
+      "required": ["token", "trip_id", "created_at", "is_active"]
+    }
+  },
+  "firestore": {
+    "/drivers/{driverId}": {
+      "schema": "Driver",
+      "description": "Driver presence, vehicle specifications, and GPS locations"
+    },
+    "/trips/{tripId}": {
+      "schema": "Trip",
+      "description": "Dispatched rides, acceptance state, meter fare, and route coordinates"
+    },
+    "/tracking_sessions/{token}": {
+      "schema": "TrackingSession",
+      "description": "Optional single-trip customer live tracking token and session"
+    },
+    "/system_settings/{docId}": {
+      "schema": "SystemSettings",
+      "description": "Global dispatch control, killswitch, and fleet configuration"
+    },
+    "/app_control/{document=**}": {
+      "schema": "SystemSettings",
+      "description": "Fleet app control parameters"
+    },
+    "/admins/{adminId}": {
+      "schema": "AdminUser",
+      "description": "Authorized administrator accounts and permission definitions"
+    },
+    "/fare_rates/{rateId}": {
+      "schema": "FareRateCard",
+      "description": "Tariff matrices and per-category fare rates"
+    }
+  }
+}

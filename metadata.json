@@ -1,0 +1,10 @@
+{
+  "name": "Remix Copy of Remix Remix Trusty Yellow Cab Admin",
+  "description": "Comprehensive PWA dispatch \u0026 fleet admin console for Trusty Yellow Cab driver app and Firestore backend.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

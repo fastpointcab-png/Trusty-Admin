@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Trusty Yellow Cab Admin</title>
+    <meta name="description" content="Comprehensive PWA dispatch & fleet admin console for Trusty Yellow Cab driver app and Firestore backend." />
+    <meta property="og:title" content="Trusty Yellow Cab Admin" />
+    <meta property="og:description" content="Comprehensive PWA dispatch & fleet admin console for Trusty Yellow Cab driver app and Firestore backend." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <meta name="theme-color" content="#F59E0B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CabAdmin" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+
+    <!-- Google Fonts: Inter & JetBrains Mono for Corporate Professional Clean UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- React 19 DevTools, Auto-Refresh Blocker & Cross-Origin Safety Shield -->
+    <script>
+      (function() {
+        // --- 1. Prevent Unwanted Automatic Page Refreshes / Reloads ---
+        try {
+          var blockReload = function(caller) {
+            console.warn('[AutoRefreshShield] Blocked automatic page reload triggered by ' + caller + '. App state preserved.');
+          };
+
+          // Neutralize Location.prototype.reload
+          if (typeof Location !== 'undefined' && Location.prototype) {
+            try {
+              Object.defineProperty(Location.prototype, 'reload', {
+                value: function() { blockReload('Location.prototype.reload'); },
+                writable: true,
+                configurable: true,
+              });
+            } catch (_) {
+              try { Location.prototype.reload = function() { blockReload('Location.prototype.reload'); }; } catch (_) {}
+            }
+
+            // Neutralize self-targeting location.replace calls
+            try {
+              var origReplace = Location.prototype.replace;
+              Object.defineProperty(Location.prototype, 'replace', {
+                value: function(url) {
+                  if (typeof url === 'string' && (url === window.location.href || url === window.location.pathname || url === '' || url === '/')) {
+                    blockReload('Location.prototype.replace(self)');
+                    return;
+                  }
+                  return origReplace.apply(this, arguments);
+                },
+                writable: true,
+                configurable: true,
+              });
+            } catch (_) {}
+
+            // Neutralize self-targeting location.assign calls
+            try {
+              var origAssign = Location.prototype.assign;
+              Object.defineProperty(Location.prototype, 'assign', {
+                value: function(url) {
+                  if (typeof url === 'string' && (url === window.location.href || url === window.location.pathname || url === '' || url === '/')) {
+                    blockReload('Location.prototype.assign(self)');
+                    return;
+                  }
+                  return origAssign.apply(this, arguments);
+                },
+                writable: true,
+                configurable: true,
+              });
+            } catch (_) {}
+          }
+
+          // Neutralize window.location.reload directly
+          try {
+            if (window.location && typeof window.location.reload === 'function') {
+              window.location.reload = function() { blockReload('window.location.reload'); };
+            }
+          } catch (_) {}
+        } catch (_) {}
+
+        // --- 2. Neutralize Vite Dev Client WebSocket Disconnect / Ping Reload Loops ---
+        try {
+          if (typeof window !== 'undefined' && window.WebSocket) {
+            var RealWebSocket = window.WebSocket;
+            window.WebSocket = function(url, protocols) {
+              var isViteDevSocket = false;
+              if (typeof protocols === 'string' && (protocols === 'vite-hmr' || protocols === 'vite-ping')) {
+                isViteDevSocket = true;
+              } else if (Array.isArray(protocols) && (protocols.indexOf('vite-hmr') !== -1 || protocols.indexOf('vite-ping') !== -1)) {
+                isViteDevSocket = true;
+              } else if (typeof url === 'string' && (url.indexOf('vite') !== -1 || url.indexOf('token=') !== -1)) {
+                isViteDevSocket = true;
+              }
+
+              if (isViteDevSocket) {
+                var listeners = {};
+                var dummySocket = {
+                  url: url,
+                  readyState: 1, // OPEN
+                  send: function() {},
+                  close: function() {},
+                  addEventListener: function(evt, handler) {
+                    listeners[evt] = listeners[evt] || [];
+                    listeners[evt].push(handler);
+                    if (evt === 'open') {
+                      setTimeout(function() {
+                        try { handler({ type: 'open', target: dummySocket }); } catch (_) {}
+                        if (typeof dummySocket.onopen === 'function') {
+                          try { dummySocket.onopen({ type: 'open', target: dummySocket }); } catch (_) {}
+                        }
+                      }, 10);
+                    }
+                  },
+                  removeEventListener: function(evt, handler) {
+                    if (listeners[evt]) {
+                      listeners[evt] = listeners[evt].filter(function(h) { return h !== handler; });
+                    }
+                  },
+                  dispatchEvent: function() { return false; },
+                  onopen: null,
+                  onmessage: null,
+                  onerror: null,
+                  onclose: null,
+                };
+                return dummySocket;
+              }
+              return new RealWebSocket(url, protocols);
+            };
+            window.WebSocket.prototype = RealWebSocket.prototype;
+          }
+        } catch (_) {}
+
+        // 3. Prevent React 19 dev runtime user-timing inspector from deep-inspecting cross-origin Window objects
+        if (typeof console !== 'undefined') {
+          try {
+            Object.defineProperty(console, 'timeStamp', {
+              value: undefined,
+              writable: true,
+              configurable: true,
+            });
+          } catch (e) {
+            try { delete console.timeStamp; } catch (_) {}
+          }
+        }
+
+        // 4. Safeguard Window prototype against $$typeof lookups
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          try {
+            Object.defineProperty(Window.prototype, '$$typeof', {
+              value: undefined,
+              writable: true,
+              configurable: true,
+            });
+          } catch (e) {}
+        }
+
+        // 5. Prevent uncaught cross-origin iframe errors from halting React reconciler work loops
+        window.addEventListener('error', function(event) {
+          var msg = (event && event.message) ? String(event.message) : '';
+          if (
+            msg.indexOf('$$typeof') !== -1 ||
+            msg.indexOf('Blocked a frame with origin') !== -1 ||
+            msg.indexOf('Should not already be working') !== -1
+          ) {
+            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && event.reason;
+          var msg = reason ? String(reason.message || reason) : '';
+          if (
+            msg.indexOf('$$typeof') !== -1 ||
+            msg.indexOf('Blocked a frame with origin') !== -1 ||
+            msg.indexOf('Should not already be working') !== -1
+          ) {
+            if (event.preventDefault) event.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+
+    <!-- Leaflet Map Styles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  </head>
+  <body class="bg-slate-50 text-slate-800 antialiased font-sans selection:bg-slate-200 selection:text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
