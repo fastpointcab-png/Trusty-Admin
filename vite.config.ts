@@ -3,7 +3,29 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import {defineConfig, Plugin} from 'vite';
-import {VitePWA} from 'vite-plugin-pwa';
+
+type VitePWAPluginFactory = (options?: Record<string, unknown>) => Plugin;
+
+const pwaPluginFactory = (() => {
+  try {
+    const mod = require('vite-plugin-pwa') as {
+      VitePWA?: VitePWAPluginFactory;
+    };
+    return mod.VitePWA ?? (() => ({
+      name: 'vite-plugin-pwa-disabled',
+      apply() {
+        return false;
+      },
+    }));
+  } catch {
+    return (() => ({
+      name: 'vite-plugin-pwa-disabled',
+      apply() {
+        return false;
+      },
+    })) as VitePWAPluginFactory;
+  }
+})();
 
 // LINT.IfChange(aistudio_media_plugin)
 function aistudioMediaPlugin(): Plugin {
@@ -71,7 +93,7 @@ export default defineConfig(() => {
       react(),
       tailwindcss(),
       aistudioMediaPlugin(),
-      VitePWA({
+      pwaPluginFactory({
         registerType: 'prompt',
         injectRegister: false,
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
