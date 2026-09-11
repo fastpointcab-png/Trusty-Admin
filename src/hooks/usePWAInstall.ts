@@ -2,20 +2,25 @@ import { useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+  userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
 }
 
 export function usePWAInstall() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    const search = window.location.search;
+    const params = new URLSearchParams(window.location.search);
 
     const isBlockedPage =
-      search.includes('page=privacy') ||
-      search.includes('track=');
+      params.has('track') ||
+      params.get('page') === 'privacy';
 
     if (isBlockedPage) {
       return;
@@ -23,12 +28,13 @@ export function usePWAInstall() {
 
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      (window.navigator as any).standalone === true;
 
     setIsInstalled(isStandalone);
 
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    setIsIOS(/iphone|ipad|ipod/.test(userAgent));
+    setIsIOS(
+      /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+    );
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -40,12 +46,26 @@ export function usePWAInstall() {
       setDeferredPrompt(null);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener(
+      'beforeinstallprompt',
+      handleBeforeInstallPrompt
+    );
+
+    window.addEventListener(
+      'appinstalled',
+      handleAppInstalled
+    );
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
+
+      window.removeEventListener(
+        'appinstalled',
+        handleAppInstalled
+      );
     };
   }, []);
 
@@ -54,7 +74,8 @@ export function usePWAInstall() {
 
     await deferredPrompt.prompt();
 
-    const { outcome } = await deferredPrompt.userChoice;
+    const { outcome } =
+      await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
       setIsInstalled(true);
