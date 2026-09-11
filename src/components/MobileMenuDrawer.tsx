@@ -178,19 +178,22 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
             </button>
           </div>
 
-          {/* PWA Install Button (if available) */}
-          {!isInstalled && isInstallable && (
-            <button
-              onClick={() => {
-                onClose();
-                install();
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-2xl text-xs transition cursor-pointer min-h-[44px] shadow-sm"
-            >
-              <Download className="w-4 h-4 text-amber-400" />
-              <span>Install Mobile App (PWA)</span>
-            </button>
-          )}
+          {/* PWA Install Button (Hidden on Privacy & Tracking Pages) */}
+{!window.location.search.includes('page=privacy') &&
+ !window.location.search.includes('track=') &&
+ !isInstalled &&
+ isInstallable && (
+  <button
+    onClick={() => {
+      onClose();
+      install();
+    }}
+    className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-2xl text-xs transition cursor-pointer min-h-[44px] shadow-sm"
+  >
+    <Download className="w-4 h-4 text-amber-400" />
+    <span>Install Mobile App (PWA)</span>
+  </button>
+)}
 
           {/* Logout Button */}
           {onLogout && (
