@@ -11,16 +11,24 @@ export function usePWAInstall() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Detect standalone mode (already running as installed PWA)
+    const search = window.location.search;
+
+    const isBlockedPage =
+      search.includes('page=privacy') ||
+      search.includes('track=');
+
+    if (isBlockedPage) {
+      return;
+    }
+
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+
     setIsInstalled(isStandalone);
 
-    // Detect iOS devices
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-    setIsIOS(isIOSDevice);
+    setIsIOS(/iphone|ipad|ipod/.test(userAgent));
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -43,13 +51,17 @@ export function usePWAInstall() {
 
   const install = async () => {
     if (!deferredPrompt) return false;
+
     await deferredPrompt.prompt();
+
     const { outcome } = await deferredPrompt.userChoice;
+
     if (outcome === 'accepted') {
       setIsInstalled(true);
       setDeferredPrompt(null);
       return true;
     }
+
     return false;
   };
 
