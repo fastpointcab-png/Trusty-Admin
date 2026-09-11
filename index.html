@@ -28,9 +28,43 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
 
     <!-- Google Fonts: Inter & JetBrains Mono for Corporate Professional Clean UI -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+   
+<script>
+(function () {
+  const isTrackingPage =
+    window.location.search.includes('track=') ||
+    window.location.search.includes('page=privacy');
+
+  if (!isTrackingPage) {
+    const manifest = document.createElement('link');
+    manifest.rel = 'manifest';
+    manifest.href = '/manifest.webmanifest';
+    document.head.appendChild(manifest);
+  } else {
+    document
+      .querySelectorAll(
+        'link[rel="manifest"], link[rel="apple-touch-icon"]'
+      )
+      .forEach(el => el.remove());
+
+    document
+      .querySelectorAll(
+        'meta[name="mobile-web-app-capable"], meta[name="apple-mobile-web-app-capable"]'
+      )
+      .forEach(el => el.remove());
+
+    document
+      .querySelectorAll(
+        'meta[name="apple-mobile-web-app-title"]'
+      )
+      .forEach(el => el.remove());
+  }
+})();
+</script>
 
     <!-- React 19 DevTools, Auto-Refresh Blocker & Cross-Origin Safety Shield -->
     <script>
