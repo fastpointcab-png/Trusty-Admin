@@ -29,9 +29,10 @@ export interface CarIconOptions {
   size?: number;        // default 56
 }
 
+
 export function get3DWhiteCarSvg(_options: CarIconOptions = {}): string {
   return `
-<svg width="1600px" height="1600px" viewBox="120 90 960 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="5000px" height="5000px" viewBox="120 90 960 700" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_f_3_8)">
 <path d="M895.676 744.343C939.847 732.216 1020.57 698.066 1049.93 672.02C1083.71 644.834 1015.91 611.739 1007.89 606.808C999.871 601.876 604.922 393.283 535.937 360.801C466.951 328.319 244.392 387.503 190.145 415.853C145.928 438.962 176.306 456.871 182 461.744C187.694 466.616 516.169 660.84 634.493 720.577C724.1 765.816 808.973 768.146 895.676 744.343Z" fill="#000000" fill-opacity="0.2"/>
 </g>
