@@ -578,9 +578,9 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
           const pInfo = `
             <div style="font-family: system-ui, sans-serif; font-size: 11px; padding: 2px;">
               <div style="font-weight: bold; color: #059669; margin-bottom: 2px;">● Pickup Location</div>
-              <strong>${trip.customer_name}</strong> (${(trip as FirestoreTrip & { passenger_phone?: string }).passenger_phone || 'No phone'})<br/>
+              <strong>${trip.customer_name}</strong> (${'passenger_phone' in trip ? trip.passenger_phone || 'No phone' : 'No phone'})<br/>
               <span style="color: #475569;">${trip.pickup_location}</span><br/>
-              <span style="color: #f59e0b; font-weight: bold;">Trip: ${trip.trip_id} | Fare: ₹${trip.estimated_fare || (trip as FirestoreTrip & { fare_amount?: number }).fare_amount || 0}</span>
+              <span style="color: #f59e0b; font-weight: bold;">Trip: ${trip.trip_id} | Fare: ₹${trip.estimated_fare || 0}</span>
             </div>
           `;
           pickupMarker.addListener('click', () => {
