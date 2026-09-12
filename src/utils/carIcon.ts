@@ -32,7 +32,7 @@ export interface CarIconOptions {
 
 export function get3DWhiteCarSvg(_options: CarIconOptions = {}): string {
   return `
-<svg width="5000px" height="5000px" viewBox="120 90 960 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="800px" height="800px" viewBox="120 90 960 700" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_f_3_8)">
 <path d="M895.676 744.343C939.847 732.216 1020.57 698.066 1049.93 672.02C1083.71 644.834 1015.91 611.739 1007.89 606.808C999.871 601.876 604.922 393.283 535.937 360.801C466.951 328.319 244.392 387.503 190.145 415.853C145.928 438.962 176.306 456.871 182 461.744C187.694 466.616 516.169 660.84 634.493 720.577C724.1 765.816 808.973 768.146 895.676 744.343Z" fill="#000000" fill-opacity="0.2"/>
 </g>
@@ -119,7 +119,7 @@ export function get3DWhiteCarSvg(_options: CarIconOptions = {}): string {
 <filter id="filter0_f_3_8" x="156.532" y="341.326" width="912.769" height="427.964" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feGaussianBlur stdDeviation="1.5" result="effect1_foregroundBlur_3_8"/>
+<feGaussianBlur stdDeviation="5" result="effect1_foregroundBlur_3_8"/>
 </filter>
 <filter id="filter1_i_3_8" x="574.091" y="546.5" width="88.7214" height="126.952" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
@@ -241,7 +241,7 @@ export function get3DWhiteCarSvg(_options: CarIconOptions = {}): string {
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="17.0762" dy="-22.7683"/>
-<feGaussianBlur stdDeviation="12"/>
+<feGaussianBlur stdDeviation="68.3049"/>
 <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
 <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0"/>
 <feBlend mode="normal" in2="shape" result="effect1_innerShadow_3_8"/>
@@ -305,12 +305,12 @@ export function get3DWhiteCarSvg(_options: CarIconOptions = {}): string {
 <filter id="filter14_f_3_8" x="524" y="390.889" width="414.161" height="202.35" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feGaussianBlur stdDeviation="4" result="effect1_foregroundBlur_3_8"/>
+<feGaussianBlur stdDeviation="16.067" result="effect1_foregroundBlur_3_8"/>
 </filter>
 <filter id="filter15_f_3_8" x="841.681" y="294.917" width="189.936" height="219.061" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feGaussianBlur stdDeviation="3" result="effect1_foregroundBlur_3_8"/>
+<feGaussianBlur stdDeviation="10.3288" result="effect1_foregroundBlur_3_8"/>
 </filter>
 <filter id="filter16_di_3_8" x="439.395" y="418.159" width="27.4548" height="23.2962" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
