@@ -479,12 +479,12 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
               cancelAnimationFrame(markerAnimationsRef.current[drv.driver_id]);
             }
             const startTime = performance.now();
-            const duration = 800; // 800ms smooth glide
+            const duration = 30000; // 30 seconds smooth linear glide
 
             const step = (now: number) => {
               const elapsed = now - startTime;
               const progress = Math.min(elapsed / duration, 1);
-              const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+              const ease = progress; // Linear progression
               existingMarker.setPosition({
                 lat: startLat + (targetLat - startLat) * ease,
                 lng: startLng + (targetLng - startLng) * ease,
@@ -578,9 +578,11 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
           const pInfo = `
             <div style="font-family: system-ui, sans-serif; font-size: 11px; padding: 2px;">
               <div style="font-weight: bold; color: #059669; margin-bottom: 2px;">● Pickup Location</div>
-              <strong>${trip.customer_name}</strong> (${'passenger_phone' in trip ? trip.passenger_phone || 'No phone' : 'No phone'})<br/>
+              <strong>${trip.customer_name}</strong> (${
+                (trip as FirestoreTrip & { passenger_phone?: string }).passenger_phone || 'No phone'
+              })<br/>
               <span style="color: #475569;">${trip.pickup_location}</span><br/>
-              <span style="color: #f59e0b; font-weight: bold;">Trip: ${trip.trip_id} | Fare: ₹${trip.estimated_fare || 0}</span>
+              <span style="color: #f59e0b; font-weight: bold;">Trip: ${trip.trip_id} | Fare: ₹${trip.estimated_fare || (trip as FirestoreTrip & { fare_amount?: number }).fare_amount || 0}</span>
             </div>
           `;
           pickupMarker.addListener('click', () => {
@@ -719,9 +721,44 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
 
         const existingMarker = leafletMarkersRef.current[drv.driver_id];
         if (existingMarker) {
-          existingMarker.setLatLng([drv.latitude, drv.longitude]);
           existingMarker.setIcon(customIcon);
           existingMarker.setPopupContent(popupContent);
+          
+          const curPos = existingMarker.getLatLng();
+          if (curPos) {
+            const startLat = curPos.lat;
+            const startLng = curPos.lng;
+            const targetLat = drv.latitude;
+            const targetLng = drv.longitude;
+            const delta = Math.hypot(targetLat - startLat, targetLng - startLng);
+
+            if (delta > 0.000005 && delta < 0.05) {
+              if (markerAnimationsRef.current[drv.driver_id]) {
+                cancelAnimationFrame(markerAnimationsRef.current[drv.driver_id]);
+              }
+              const startTime = performance.now();
+              const duration = 30000;
+              const step = (now: number) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = progress; // Linear
+                existingMarker.setLatLng([
+                  startLat + (targetLat - startLat) * ease,
+                  startLng + (targetLng - startLng) * ease,
+                ]);
+                if (progress < 1) {
+                  markerAnimationsRef.current[drv.driver_id] = requestAnimationFrame(step);
+                } else {
+                  delete markerAnimationsRef.current[drv.driver_id];
+                }
+              };
+              markerAnimationsRef.current[drv.driver_id] = requestAnimationFrame(step);
+            } else if (delta >= 0.05) {
+              existingMarker.setLatLng([targetLat, targetLng]);
+            }
+          } else {
+            existingMarker.setLatLng([drv.latitude, drv.longitude]);
+          }
         } else {
           const marker = L.marker([drv.latitude, drv.longitude], { icon: customIcon }).addTo(map);
           marker.bindPopup(popupContent);

@@ -293,11 +293,11 @@ export const CustomerLiveTracking: React.FC<CustomerLiveTrackingProps> = ({
                   cancelAnimationFrame(driverAnimFrameRef.current);
                 }
                 const startTime = performance.now();
-                const duration = 800;
+                const duration = 30000; // 30 seconds continuous linear movement
                 const step = (now: number) => {
                   const elapsed = now - startTime;
                   const progress = Math.min(elapsed / duration, 1);
-                  const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+                  const ease = progress; // Linear progression for live tracking
                   driverMarkerRef.current?.setPosition({
                     lat: startLat + (targetLat - startLat) * ease,
                     lng: startLng + (targetLng - startLng) * ease,
@@ -420,7 +420,42 @@ export const CustomerLiveTracking: React.FC<CustomerLiveTrackingProps> = ({
           leafletDriverMarkerRef.current = L.marker([driverPos.lat, driverPos.lng], { icon: carIcon }).addTo(map);
         } else {
           leafletDriverMarkerRef.current.setIcon(carIcon);
-          leafletDriverMarkerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
+          
+          const curPos = leafletDriverMarkerRef.current.getLatLng();
+          if (curPos) {
+            const startLat = curPos.lat;
+            const startLng = curPos.lng;
+            const targetLat = driverPos.lat;
+            const targetLng = driverPos.lng;
+            const delta = Math.hypot(targetLat - startLat, targetLng - startLng);
+
+            if (delta > 0.000005 && delta < 0.05) {
+              if (driverAnimFrameRef.current) {
+                cancelAnimationFrame(driverAnimFrameRef.current);
+              }
+              const startTime = performance.now();
+              const duration = 30000;
+              const step = (now: number) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = progress; // Linear
+                leafletDriverMarkerRef.current?.setLatLng([
+                  startLat + (targetLat - startLat) * ease,
+                  startLng + (targetLng - startLng) * ease,
+                ]);
+                if (progress < 1) {
+                  driverAnimFrameRef.current = requestAnimationFrame(step);
+                } else {
+                  driverAnimFrameRef.current = null;
+                }
+              };
+              driverAnimFrameRef.current = requestAnimationFrame(step);
+            } else if (delta >= 0.05) {
+              leafletDriverMarkerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
+            }
+          } else {
+            leafletDriverMarkerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
+          }
         }
 
         // Fit bounds once
